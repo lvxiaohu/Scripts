@@ -7,7 +7,7 @@ import threading
 import time
 import random
 
-HOST = "10.117.216.29"
+HOST = "192.168.1.1"
 PORT = 2222
 USER = "admin"
 PASSWORD = "admin"
@@ -17,7 +17,7 @@ DEBUG = True
 # 并发会话数
 TOTAL = 100
 
-PS1 = "sflog"
+PS1 = "lxh"
 RUN_COMMAND = ["tail /var/log/dmesg", "echo hello world"]
 stop_event = threading.Event()
 

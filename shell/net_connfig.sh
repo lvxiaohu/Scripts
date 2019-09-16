@@ -2,6 +2,7 @@
 #! /bin/bash
 
 #获取真实网卡列表
+#NetworkDevice=`nmcli device show|grep GENERAL.DEVICE:|awk '{print $2}'|grep en|awk '$0=""NR". "$0'`
 NetworkDevice=`nmcli device show|grep GENERAL.DEVICE:|awk '{print $2}'|grep "^e"|head -5|awk '$0=""NR". "$0'`
 
 #echo  -e """网卡信息:\n \033[32m ${NetworkDevice}\033[0m"""
@@ -37,6 +38,7 @@ function check_ip {
 }
 
 function network_set {
+    echo 配置的网卡文件为：$chose_net_device
     read -p "请输入请你的IPV4地址："          ipaddr
     read -p "请输入请你的子网掩码/NETMASK[例:255.255.255.0]："  ip_netmask
     read -p "请输入请你的网关地址："  ip_gw
@@ -77,11 +79,48 @@ function restart_network () {
     fi
 }
 
+function set_ntp {
+    read -p "网络配置已完成，是否同步NTP（时间服务器）(y/n):" yn
+    if [ "$yn" == "Y" ] || [ "$yn" == "y" ]; then
+    read -p "请输入请你的NTP地址："  ip_ntp
+    which ntpdate
+        if [ $? -eq 0 ];then
+            echo ""
+        else
+            echo "没有安装NTP客户端，即将使用Yum安装"
+            yum install ntpdate -y
+        if [ $? -eq 0 ];then
+        echo ""
+        else
+            echo "NTP安装失败，请手动下载安装"
+        fi
+        fi
+    ntpdate -u $ip_ntp
+        if [ $? -eq 0 ]
+        then
+            echo "时间同步成功"
+            else
+            echo "时间同步失败"
+        fi
+    fi
+}
 function main {
     network_chose
-    echo 配置的网卡文件为：$chose_net_device
     network_set
     restart_network
+    set_ntp
 }
 
 main
+
+#read -p "网络配置已完成，是否重启网络(y/n):" yn
+#if [ "$yn" == "Y" ] || [ "$yn" == "y" ]; then
+#        echo "将要重启网络..."
+#        reboot
+#elif [ "$yn" == "N" ] || [ "$yn" == "n"  ]; then
+#        echo "修改MAC地址后需要重启系统使之生效，请手动重启系统..."
+#fi
+
+
+# NTP 同步配置
+

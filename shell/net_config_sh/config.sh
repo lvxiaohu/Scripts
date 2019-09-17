@@ -30,14 +30,15 @@ function check_ip {
             continue
         else
             echo -e "\033[31m IP $IP 输入错误，请重新输入 \033[0m"
-            network_set
+            static_network_set
         fi
     else
         echo "IP format error!"
+        exit 1
     fi
 }
 
-function network_set {
+function static_network_set {
     read -p "请输入请你的IPV4地址："          ipaddr
     read -p "请输入请你的子网掩码/NETMASK[例:255.255.255.0]："  ip_netmask
     read -p "请输入请你的网关地址："  ip_gw
@@ -46,17 +47,35 @@ function network_set {
         check_ip
         done
     echo "" > /etc/sysconfig/network-scripts/ifcfg-$chose_net_device
-cat << EOF >>/etc/sysconfig/network-scripts/ifcfg-$chose_net_device
+cat << EOF > /etc/sysconfig/network-scripts/ifcfg-$chose_net_device
 TYPE=Ethernet
 NAME=$chose_net_device
 IPADDR=$ipaddr
 NETMASK=$ip_netmask
 GATEWAY=$ip_gw
 DNS1=$ip_dns
-DEVICE=ens192
+DEVICE=$chose_net_device
 ONBOOT=yes
 USERCTL=no
 BOOTPROTO=static
+#PEERDNS=no
+IPV6INIT=yes
+IPV6_AUTOCONF=yes
+IPV6_DEFROUTE=yes
+IPV6_FAILURE_FATAL=no
+IPV6_ADDR_GEN_MODE=stable-privacy
+IPV6_PRIVACY=no
+EOF
+}
+
+function dhcp_network_set {
+cat << EOF > /etc/sysconfig/network-scripts/ifcfg-$chose_net_device
+TYPE=Ethernet
+NAME=$chose_net_device
+DEVICE=$chose_net_device
+ONBOOT=yes
+USERCTL=no
+BOOTPROTO=dhcp
 #PEERDNS=no
 IPV6INIT=yes
 IPV6_AUTOCONF=yes
@@ -117,7 +136,12 @@ function auto_set {
     read -p "即将进行网络配置，是否继续(y/n):" yn
     if [ "$yn" == "Y" ] || [ "$yn" == "y" ]; then
         network_chose
-        network_set
+        read -p "请选择IP配置方式,静态[Static]手动配置请输入:1 [DHCP]请输入:2  请选择(1/2):" chose_ip
+        if [ "$chose_ip" == "2" ] ; then
+            dhcp_network_set
+            else
+            static_network_set
+        fi
         restart_network
     else
         set_ntp

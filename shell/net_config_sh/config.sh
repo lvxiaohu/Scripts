@@ -8,7 +8,7 @@ NetworkDevice=`nmcli device show|grep GENERAL.DEVICE:|awk '{print $2}'|grep "^e"
 function network_chose {
     echo -e "开始配置网络..."
     printf "%-5s|%-10s\n" 网卡ID 网卡名称
-    echo -e "===============================\033[34m
+    echo -e "===============================\033[32m
 ${NetworkDevice} \033[0m
 ==============================="
 
@@ -20,7 +20,7 @@ ${NetworkDevice} \033[0m
         else
             chose_net_device=`echo "${NetworkDevice}"|sed -n "${NetworkNum}p"|awk '{print $2}'`
     fi
-    echo -e "配置的网卡文件为：\033[34m ${chose_net_device} \033[0m"
+    echo -e "配置的网卡文件为：\033[32m ${chose_net_device} \033[0m"
 }
 
 function check_ip {
@@ -144,12 +144,13 @@ function auto_set {
         fi
         restart_network
     else
-        set_ntp
+        exit 1
     fi
 }
 
 function main {
     auto_set
+    set_ntp
 }
 
 main

@@ -18,8 +18,9 @@ ${NetworkDevice} \033[0m
             echo -e "\033[32m 不是有效的网卡ID，请重新输入... \033[0m"
             network_chose
         else
-            chose_net_device=`echo $NetworkDevice|head -$NetworkNum|awk '{print $2}'`
+            chose_net_device=`echo "${NetworkDevice}"|sed -n "${NetworkNum}p"|awk '{print $2}'`
     fi
+    echo -e "配置的网卡文件为：\033[34m ${chose_net_device} \033[0m"
 }
 
 function check_ip {
@@ -37,7 +38,6 @@ function check_ip {
 }
 
 function network_set {
-    echo -e "配置的网卡文件为：\033[34m ${chose_net_device} \033[0m"
     read -p "请输入请你的IPV4地址："          ipaddr
     read -p "请输入请你的子网掩码/NETMASK[例:255.255.255.0]："  ip_netmask
     read -p "请输入请你的网关地址："  ip_gw
@@ -112,6 +112,7 @@ function set_ntp {
         fi
     fi
 }
+
 function main {
     network_chose
     network_set

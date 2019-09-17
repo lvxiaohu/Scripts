@@ -113,11 +113,19 @@ function set_ntp {
     fi
 }
 
+function auto_set {
+    read -p "即将进行网络配置，是否继续(y/n):" yn
+    if [ "$yn" == "Y" ] || [ "$yn" == "y" ]; then
+        network_chose
+        network_set
+        restart_network
+    else
+        set_ntp
+    fi
+}
+
 function main {
-    network_chose
-    network_set
-    restart_network
-    set_ntp
+    auto_set
 }
 
 main

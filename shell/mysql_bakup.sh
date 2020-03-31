@@ -1,12 +1,11 @@
-vi /jumpserver-data/jumpserver/backup.sh
-
 #!/bin/bash
 #mysql 备份脚本
 #保留最近10天备份
 #备份目录
 backupDir=/jumpserver-data/jumpserver/mysql-bak
 #mysqlDump
-mysqldump=/usr/bin/mysqldump
+mysqldump="docker run --rm -i --network=jms_default registry.fit2cloud.com/public/mysql:5 mysqldump"
+#mysqldump=/usr/bin/mysqldump
 #ip
 host=127.0.0.1
 #用户名
